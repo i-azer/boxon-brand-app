@@ -2,6 +2,7 @@
 import { useForm, useFieldArray, type SubmitHandler } from 'react-hook-form';
 import { Entry } from './Entry';
 import { useState } from 'react';
+import axios from 'axios';
 
 
 type FormInputs = {
@@ -38,9 +39,26 @@ export function Assessment() {
         name: "usersArabic", // Manage Arabic users
     });
 
-    const onSubmit: SubmitHandler<FormInputs> = (data) => {
+    const onSubmit: SubmitHandler<FormInputs> = async (data) => {
         console.log("English Users:", data.users);
         console.log("Arabic Users:", data.usersArabic);
+        try {
+            // Make POST request to the .NET API endpoint
+            const response = await axios.post("http://localhost:5253/api/form/submit-fast", data);
+
+            // Handle success response
+            console.log("Response Data:", response.data);
+            alert(`Success: ${response.data.status}\nEnglish Users Added: ${response.data.englishUsersAdded}\nArabic Users Added: ${response.data.arabicUsersAdded}`);
+        } catch (error) {
+            // Handle error
+            if (axios.isAxiosError(error)) {
+                console.error("Axios Error:", error.response?.data);
+                alert("Error submitting form: " + (error.response?.data?.message || "Something went wrong!"));
+            } else {
+                console.error("Unexpected Error:", error);
+                alert("An unexpected error occurred!");
+            }
+        }
     };
 
     // Add handler
